@@ -73,7 +73,7 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/${device}
   w # save and close
   q
 EOF
-mkfs.xfs /dev/${device}
+mkfs.xfs /dev/${device}1
 done
 
 chown -R ${SWIFT_USER}:${SWIFT_GROUP} ${SWIFT_RUN_DIR}
