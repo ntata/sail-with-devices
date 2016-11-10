@@ -43,8 +43,8 @@ umount /mnt/sdc1
 umount /mnt/sdd1
 
 # remove files and directories
-rm -rf ${SWIFT_DISK_BASE_DIR}
-rm -rf ${SWIFT_MOUNT_BASE_DIR}
+rm -rf ${SWIFT_DISK_BASE_DIR}/*
+rm -rf ${SWIFT_MOUNT_BASE_DIR}/sd*
 rm -rf ${SWIFT_CONFIG_DIR}
 rm -rf ${SWIFT_PROFILE_LOG_DIR}
 rm -rf ${SWIFT_RUN_DIR}
