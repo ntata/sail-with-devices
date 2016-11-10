@@ -61,8 +61,8 @@ mkdir -p "${SWIFT_PROFILE_LOG_DIR}"
 mkdir -p "${SWIFT_LOG_DIR}"
 
 #Create partitions on devices attached
-for dev in sda sdb sdc sdd; do
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/${dev}
+for device in sda sdb sdc sdd; do
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/${device}
   o # clear the in memory partition table
   n # new partition
   p # primary partition
@@ -73,6 +73,7 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/${dev}
   w # save and close
   q
 EOF
+mkfs.xfs /dev/${device}
 done
 
 chown -R ${SWIFT_USER}:${SWIFT_GROUP} ${SWIFT_RUN_DIR}
@@ -80,37 +81,36 @@ chown -R ${SWIFT_USER}:${SWIFT_GROUP} ${SWIFT_PROFILE_LOG_DIR}
 chown -R syslog.adm ${SWIFT_LOG_DIR}
 chmod -R g+w ${SWIFT_LOG_DIR}
 
-SWIFT_DISK="${SWIFT_DISK_BASE_DIR}/swift-disk"
-truncate -s "${SWIFT_DISK_SIZE_GB}GB" "${SWIFT_DISK}"
-mkfs.xfs -f "${SWIFT_DISK}"
-
 # good idea to have backup of fstab before we modify it
 cp /etc/fstab /etc/fstab.insert.bak
 
 #TODO check whether swift-disk entry already exists
 cat >> /etc/fstab << EOF
-/srv/swift-disk /mnt/sdb1 xfs loop,noatime,nodiratime,nobarrier,logbufs=8 0 0
+/dev/sda1 /mnt/sda1 xfs loop,noatime,nodiratime,nobarrier,logbufs=8 0 0
+/dev/sdb1 /mnt/sdb1 xfs loop,noatime,nodiratime,nobarrier,logbufs=8 0 0
+/dev/sdc1 /mnt/sdc1 xfs loop,noatime,nodiratime,nobarrier,logbufs=8 0 0
+/dev/sdd1 /mnt/sdd1 xfs loop,noatime,nodiratime,nobarrier,logbufs=8 0 0
 EOF
 
-SWIFT_MOUNT_POINT_DIR="${SWIFT_MOUNT_BASE_DIR}/sdb1"
-mkdir -p ${SWIFT_MOUNT_POINT_DIR}
+mkdir -p ${SWIFT_MOUNT_BASE_DIR}/sda1/1
+mkdir -p ${SWIFT_MOUNT_BASE_DIR}/sdb1/2
+mkdir -p ${SWIFT_MOUNT_BASE_DIR}/sdc1/3
+mkdir -p ${SWIFT_MOUNT_BASE_DIR}/sdd1/4
 
 mount -a 
 
 for x in {1..4}; do
-   mkdir "${SWIFT_MOUNT_POINT_DIR}/${x}"
-done
-
-for x in {1..4}; do
    SWIFT_DISK_DIR="${SWIFT_DISK_BASE_DIR}/${x}"
-   SWIFT_MOUNT_DIR="${SWIFT_MOUNT_BASE_DIR}/sdb1/${x}"
    SWIFT_CACHE_DIR="${SWIFT_CACHE_BASE_DIR}/swift${x}"
-
    mkdir -p "${SWIFT_CACHE_DIR}"
-
-   ln -s ${SWIFT_MOUNT_DIR} ${SWIFT_DISK_DIR}
 done
 mv ${SWIFT_CACHE_BASE_DIR}/swift1 ${SWIFT_CACHE_BASE_DIR}/swift
+
+ln -s ${SWIFT_DISK_BASE_DIR}/1 ${SWIFT_MOUNT_BASE_DIR}/sda1/1
+ln -s ${SWIFT_DISK_BASE_DIR}/2 ${SWIFT_MOUNT_BASE_DIR}/sdb1/2
+ln -s ${SWIFT_DISK_BASE_DIR}/3 ${SWIFT_MOUNT_BASE_DIR}/sdc1/3
+ln -s ${SWIFT_DISK_BASE_DIR}/4 ${SWIFT_MOUNT_BASE_DIR}/sdd1/4
+
 
 mkdir -p ${SWIFT_DISK_BASE_DIR}/1/node/sdb1
 mkdir -p ${SWIFT_DISK_BASE_DIR}/2/node/sdb2
@@ -164,6 +164,8 @@ if [ "$?" -ne "0" ]; then
    echo "${EXPORT_PATH}" >> ${SWIFT_LOGIN_CONFIG}
 fi
 
+#chnaging swift ports to 5*** series
+find ${SWIFT_CONFIG_DIR} -type f -exec sed -i 's/^bind_port = \(6\)\([0-9]*\)/echo "bind_port = 5\2"/ge' {} \;
 
 echo "export PYTHONPATH=${SWIFT_USER_HOME}/swift" >> ${SWIFT_LOGIN_CONFIG}
 
