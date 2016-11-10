@@ -166,6 +166,7 @@ fi
 
 #chnaging swift ports to 5*** series
 find ${SWIFT_CONFIG_DIR} -type f -exec sed -i 's/^bind_port = \(6\)\([0-9]*\)/echo "bind_port = 5\2"/ge' {} \;
+sed -i 's/^\(swift-ring-builder .*\)\([0-9]:\)\(6\)\([0-9][0-9][0-9]\)\(.*\)/echo "\1\25\4\5"/ge' ${SWIFT_USER_BIN}/remakerings
 
 echo "export PYTHONPATH=${SWIFT_USER_HOME}/swift" >> ${SWIFT_LOGIN_CONFIG}
 
