@@ -37,7 +37,10 @@ SWIFT_CACHE_BASE_DIR="/var/cache"
 SWIFT_PROFILE_LOG_DIR="/tmp/log/swift"
 
 # unmount loopbacks
+umount /mnt/sda1
 umount /mnt/sdb1
+umount /mnt/sdc1
+umount /mnt/sdd1
 
 # remove files and directories
 rm -rf ${SWIFT_DISK_BASE_DIR}
@@ -45,8 +48,8 @@ rm -rf ${SWIFT_MOUNT_BASE_DIR}
 rm -rf ${SWIFT_CONFIG_DIR}
 rm -rf ${SWIFT_PROFILE_LOG_DIR}
 rm -rf ${SWIFT_RUN_DIR}
-for x in {1..4}; do
+for x in {2..4}; do
    rm -rf ${SWIFT_CACHE_BASE_DIR}/swift${x}
 done
-
+rm -rf ${SWIFT_CACHE_BASE_DIR}/swift
 echo "don't forget to manually remove entries from /etc/fstab"
