@@ -48,8 +48,5 @@ rm -rf ${SWIFT_MOUNT_BASE_DIR}/sd*
 rm -rf ${SWIFT_CONFIG_DIR}
 rm -rf ${SWIFT_PROFILE_LOG_DIR}
 rm -rf ${SWIFT_RUN_DIR}
-for x in {2..4}; do
-   rm -rf ${SWIFT_CACHE_BASE_DIR}/swift${x}
-done
-rm -rf ${SWIFT_CACHE_BASE_DIR}/swift
+rm -rf ${SWIFT_CACHE_BASE_DIR}/swift*
 echo "don't forget to manually remove entries from /etc/fstab"
